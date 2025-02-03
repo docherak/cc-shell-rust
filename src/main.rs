@@ -74,7 +74,7 @@ fn main() {
             Some(command) => {
                 if let Some(full_path) = command_in_path(command, get_path_dirs()) {
                     let args: Vec<&str> = parts.collect();
-                    let output = Command::new(command)
+                    let output = Command::new(full_path)
                         .args(args)
                         .output()
                         .expect("failed to execute process");
