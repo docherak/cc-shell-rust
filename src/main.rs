@@ -34,6 +34,14 @@ fn main() {
                 });
                 println!("{}", message);
             },
+            Some("type") => {
+                if let Some(command) = parts.next() {
+                    match command {
+                        "exit" | "echo" | "type" => println!("{} is a shell builtin", command),
+                        _ => println!("{}: not found", command)
+                    }
+                }
+            }
             _ => println!("{}: command not found", input.trim())
         }
 
