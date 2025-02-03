@@ -2,6 +2,7 @@
 use std::io::{self, Write};
 
 use std::process;
+use std::iter::Iterator;
 
 fn main() {
     let stdin = io::stdin();
@@ -14,8 +15,25 @@ fn main() {
         stdin.read_line(&mut input).unwrap();
 
         let mut parts = input.trim().split_whitespace();
-        match (parts.next(), parts.next()) {
-            (Some("exit"), Some(n)) if n.parse::<i32>().is_ok() => process::exit(n.parse::<i32>().unwrap()),
+        match parts.next() {
+            Some("exit") => {
+                if let Some(n) = parts.next() {
+                    if let Ok(err_code) = n.parse::<i32>() {
+                        process::exit(err_code)
+                    }
+                }
+                process::exit(0)
+            },
+            Some("echo") => {
+                let message: String = parts.fold(String::new(), |mut acc, word| {
+                    if !acc.is_empty() {
+                        acc.push(' ');
+                    }
+                    acc.push_str(word);
+                    acc
+                });
+                println!("{}", message);
+            },
             _ => println!("{}: command not found", input.trim())
         }
 
