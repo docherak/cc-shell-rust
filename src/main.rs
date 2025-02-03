@@ -5,6 +5,7 @@ use std::process;
 use std::iter::Iterator;
 use std::env;
 use std::path::Path;
+use std::process::Command;
 
 fn get_path_dirs() -> Option<Vec<String>> {
     env::var("PATH").ok().map(|path| {
@@ -69,8 +70,21 @@ fn main() {
                         }
                     }
                 }
+            },
+            Some(command) => {
+                if let Some(full_path) = command_in_path(command, get_path_dirs()) {
+                    let args: Vec<&str> = parts.collect();
+                    let output = Command::new(command)
+                        .args(args)
+                        .output()
+                        .expect("failed to execute process");
+                    io::stdout().write_all(&output.stdout).unwrap();
+                    io::stderr().write_all(&output.stderr).unwrap();
+                } else {
+                    println!("{}: command not found", input.trim())
+                }
             }
-            _ => println!("{}: command not found", input.trim())
+            _ => continue
         }
 
 
