@@ -60,7 +60,7 @@ fn main() {
             Some("type") => {
                 while let Some(command) = parts.next() {
                     match command {
-                        "exit" | "echo" | "type" => println!("{} is a shell builtin", command),
+                        "exit" | "echo" | "type" | "pwd" | "cd" => println!("{} is a shell builtin", command),
                         _ => {
                             if let Some(path) = command_in_path(command, get_path_dirs()) {
                                 println!("{} is {}", command, path);
@@ -71,6 +71,27 @@ fn main() {
                     }
                 }
             },
+            Some("pwd") => {
+                if let Ok(pwd) = env::current_dir() {
+                    println!("{}", pwd.display())
+                }
+            },
+            Some("cd") => {
+                if let Some(arg) = parts.next() {
+                    let path = if arg == "~" {
+                        env::var("HOME").unwrap_or_else(|_| ".".to_string())
+                    } else {
+                        arg.to_string()
+                    };
+
+                    if env::set_current_dir(Path::new(&path)).is_err() {
+                        println!("cd: {}: No such file or directory", path);
+                    }
+                } else {
+                    let home_path = env::var("HOME").unwrap_or_else(|_| ".".to_string());
+                    env::set_current_dir(Path::new(&home_path)).unwrap();
+                }
+            }
             Some(command) => {
                 if let Some(full_path) = command_in_path(command, get_path_dirs()) {
                     let args: Vec<&str> = parts.collect();
