@@ -176,12 +176,10 @@ impl<'a> ShellCommand<'a> {
 
                 command.args(&processed_args);
 
-                match command.output() {
-                    Ok(output) => {
-                        let trimmed_stdout = String::from_utf8_lossy(&output.stdout).to_string();
-                        let trimmed_stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-                        self.handle_output(Some(trimmed_stdout), Some(trimmed_stderr));
+                match command.spawn() {
+                    Ok(mut child) => {
+                        let _status = child.wait();
+                        self.handle_output(None, None);
                     }
                     Err(_) => {
                         let mut not_found = format!("{}: command not found", cmd);
